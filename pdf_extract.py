@@ -1,5 +1,7 @@
 # WGM
 # A simple script to extract or merge PDF files using PyPDF2
+# Files will save in the current working directory
+
 
 import os
 from PyPDF2 import PdfReader, PdfWriter
@@ -74,8 +76,9 @@ def do_extraction():
             writer.add_page(reader.pages[p_index])
 
         # Output filename
-        base, ext = os.path.splitext(pdf_path)
-        output_path = f"{base}_extracted.pdf"
+        output_path = input("\nEnter name for the extracted file (e.g., extracted.pdf): ").strip()
+        if not output_path.lower().endswith('.pdf'):
+            output_path += ".pdf"
 
         with open(output_path, "wb") as out_file:
             writer.write(out_file)
@@ -159,13 +162,16 @@ def do_merging():
 if __name__ == "__main__":
     print("--- PDF Tool ---")
     while True:
-        mode = input("Do you want to (1) Extract pages or (2) Merge PDFs? [1/2]: ").strip()
+        mode = input("Do you want to (1) Extract pages or (2) Merge PDFs? or (3) Quit ?: ").strip()
         
         if mode == '1':
             do_extraction()
-            break
+            
         elif mode == '2':
             do_merging()
+            
+        elif mode.lower() in ('3', 'q'):
+            print("Exiting the program.")
             break
         else:
-            print("Invalid choice. Please enter 1 or 2.")
+            print("Invalid choice. Please enter 1 or 2 or 3.")
