@@ -62,13 +62,25 @@ def do_extraction():
         total_pages = len(reader.pages)
         print(f"File has {total_pages} pages.")
 
-        pages_input = input(f"Enter page numbers to extract (e.g., 1,3,5-{total_pages}): ").strip()
-        
-        # Parse and validate pages
-        page_indices = parse_page_input(pages_input, total_pages)
-        
+        while True:
+            choice = input("Do you want to extract (a) all pages except some or (b) specific pages? ").strip().lower()
+            if choice == 'a':
+                # Get pages to exclude
+                pages_input = input(f"Enter page numbers to EXCLUDE (e.g., 1,3,5-{total_pages}): ").strip()
+                pages_to_exclude = parse_page_input(pages_input, total_pages)
+                # Create list of all pages minus excluded pages
+                all_pages = set(range(total_pages))
+                page_indices = sorted(list(all_pages - set(pages_to_exclude)))
+                break
+            elif choice == 'b':
+                pages_input = input(f"Enter page numbers to extract (e.g., 1,3,5-{total_pages}): ").strip()
+                page_indices = parse_page_input(pages_input, total_pages)
+                break
+            else:
+                print("Invalid choice. Please enter 'a' or 'b'.")
+
         if not page_indices:
-            print("No valid pages selected.")
+            print("No pages selected for extraction.")
             return
 
         writer = PdfWriter()
@@ -84,7 +96,11 @@ def do_extraction():
             writer.write(out_file)
 
         # Show 1-indexed pages in success message
-        print(f"\nSuccessfully extracted pages {[p + 1 for p in page_indices]} -> '{output_path}'")
+        if choice == 'a':
+            excluded_pages = [p + 1 for p in pages_to_exclude]
+            print(f"\nSuccessfully extracted all pages EXCEPT {excluded_pages} -> '{output_path}'")
+        else:
+            print(f"\nSuccessfully extracted pages {[p + 1 for p in page_indices]} -> '{output_path}'")
 
     except (FileNotFoundError, ValueError, Exception) as e:
         print(f"\nAn error occurred: {e}")
